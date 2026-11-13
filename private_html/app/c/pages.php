@@ -1,5 +1,5 @@
 <?php
-class Pages extends App {
+class pages extends app {
   public function __construct() {
     parent::__construct();
   }

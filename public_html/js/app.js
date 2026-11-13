@@ -1,9 +1,5 @@
-var App = {
-  init: function () {
-    if (document.body.classList.contains('js')) { // if ( $('body').hasClass('js') ) {
-      this.bindUIActions();
-    }
-  },
-
-  bindUIActions: function () {}
-};
+document.addEventListener('submit', function (event) {
+  if (event.target.classList.contains('delete-file') && !window.confirm('Biztosan törlöd ezt a fájlt? A törlés végleges.')) {
+    event.preventDefault();
+  }
+});

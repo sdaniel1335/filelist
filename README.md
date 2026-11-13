@@ -1,26 +1,65 @@
-# Filelist 0.1.0
+# Filelist
 
-Egyszerű, saját szerveren futó fájlkezelő a Todolist, Playlist és Lifelist mellé, azonos jellegű belépéssel és jelszócserével. A VC Framework és a közös topbar változatlan.
+Lightweight private file manager built on [VC Framework](https://github.com/dsoos1290/vcframework) for PHP 5.3 and newer.
 
-## Használat
+Filelist organizes per-user uploads into B, P and W folders, with downloads, renaming and deletion in a compact interface.
 
-- Egyszerre egy fájl tölthető fel a B, P vagy W csoportba, legfeljebb 25 MB méretben.
-- A kezdőlapon csak azok a csoportok látszanak külön táblázatként, amelyekben van saját fájl.
-- A fájlok letölthetők, átnevezhetők és véglegesen törölhetők. Az átnevezés a teljes fájlnevet érinti, a kiterjesztéssel együtt.
-- Minden felhasználó csak a saját fájljait látja és kezelheti. Azonos nevű fájlok is feltölthetők, nincs felülírás.
+## Features
 
-## Telepítés
+* Per-user file management with upload, download, rename and delete actions.
+* Three fixed folders: **B**, **P** and **W**.
+* Separate folder tables on the home page; empty folders are automatically hidden.
+* Single-file uploads up to **25 MiB**, with duplicate filenames allowed without overwriting existing files.
+* Private filesystem storage with random storage names and database-managed metadata.
+* Owner-checked downloads served as attachments, without browser previews or server-side execution.
+* User login, password changes, CSRF protection and flash messages.
+* Responsive tables, inline rename forms and JavaScript deletion confirmations.
+* MySQLi, optional database table prefixes, Apache URL rewriting and subdirectory support.
+* No Composer dependency; PHP 5.3+ compatible.
 
-1. PHP 5.3–8.x, MySQL/MariaDB, MySQLi és HTTPS szükséges. Régi PHP-verzió helyett támogatott PHP-verzió ajánlott. A biztonságos véletlengeneráláshoz OpenSSL vagy `/dev/urandom` kell; ezek nélkül az alkalmazás nem készít gyenge tokent.
-2. Másold a `private_html/app/config/db-sample.php` fájlt `db.php` néven, és állítsd be a kapcsolatot, lehetőleg `DB_CHAR = utf8mb4` értékkel.
-3. Importáld az `install.sql` fájlt egy külön adatbázisba. Ha `DB_PREFIX` értéket használsz, az SQL-ben is add hozzá a táblanevekhez. A meglévő appok adatbázisát ne írd felül.
-4. Az alapértelmezett tároló az alkalmazás `private_html/storage` könyvtára; automatikusan ezt használja, külön útvonalbeállítás nélkül. A mellékelt `private_html/storage/.htaccess` fájlt is töltsd fel: Apache alatt ez tiltja a közvetlen letöltést és futtatást. Ehhez a szervernek engedélyeznie kell a `.htaccess` hozzáférési szabályait (`AllowOverride AuthConfig Limit` vagy `AllowOverride All`). Nginx alatt külön szerveroldali tiltás kell a `private_html` URL-jeire, mert a `.htaccess` fájlt nem értelmezi. Ellenőrizd, hogy a tároló fájljainak közvetlen URL-je 403 vagy 404 választ ad. A PHP-felhasználónak írnia/olvasnia kell a tárolót; más rendszerfelhasználónak ne adj hozzáférést. Linuxon a létrehozási jogosultság könyvtárnál 0700, fájlnál 0600; Windowson állíts be megfelelő NTFS-jogosultságokat. Egyedi `FILE_STORAGE_PATH` továbbra is megadható a webes document rooton kívül.
-5. A szerveren állítsd a `upload_max_filesize` értékét legalább `25M`, a `post_max_size` értékét például `30M` értékre. A webszerver kérésméretkorlátja is engedje ezt.
-6. Állítsd a document rootot a `public_html` könyvtárra, vagy használd a mellékelt Apache rewrite szabályokat az app alkönyvtáras telepítéséhez. Nginx esetén a privát könyvtárakat külön tiltsd le, és a kéréseket a publikus belépési pontra irányítsd.
-7. Első belépés: **admin / admin**. Külső hozzáférés engedélyezése előtt változtasd meg a jelszót a Jelszó oldalon. Nincs nyilvános regisztráció; további felhasználók az adatbázisban vehetők fel az app `auth_password_make()` függvényével előállított jelszóhash-sel.
+## Requirements
 
-A fájlok eredeti tartalommal, titkosítás nélkül, véletlenszerű, kiterjesztés nélküli tárolási néven kerülnek a privát könyvtárba. Kizárólag tulajdonos-ellenőrzött letöltési végponton keresztül érhetők el, mindig mellékletként, futtatás és böngészős előnézet nélkül. Ez más webes felhasználók hozzáférését akadályozza meg; a szerver rendszergazdája továbbra is hozzáférhet. Minden módosító művelet POST és CSRF-védett. Az adatbázist és a privát tárolót együtt mentsd.
+* PHP 5.3+ with MySQLi and a secure random source: OpenSSL or `/dev/urandom`.
+* MySQL or MariaDB.
+* Apache with `mod_rewrite` and support for the supplied `.htaccess` access restrictions.
+* Writable private storage and PHP upload temporary directory.
+* HTTPS for deployment; a supported PHP version is recommended.
 
-## Ellenőrzés
+## Installation
 
-`php tests/security.php` futtatja az adatbázis nélküli biztonsági és nézetellenőrzéseket. A teljes működéshez beállított adatbázis és webszerver kell. Két külön felhasználóval ellenőrizd a feltöltés–letöltés–átnevezés–törlés folyamatot, a másik felhasználó fájlazonosítójának elutasítását, a hibás CSRF-tokent, az üres mappák elrejtését és a szerver méretkorlátját.
+1. Download the [latest release](https://github.com/sdaniel1335/filelist/releases/latest) or clone the repository.
+2. Rename `private_html/app/config/db-sample.php` to `private_html/app/config/db.php` and configure the database, preferably using `DB_CHAR = utf8mb4`.
+3. Import `install.sql` into the configured database (new installations only). If using `DB_PREFIX`, update the table names in the SQL file accordingly.
+4. Include `private_html/storage/.htaccess` when uploading the application, and make the storage directory writable by PHP.
+5. Point the document root to `public_html`, or use the supplied Apache rewrite rules for a subdirectory installation.
+6. Open the application and sign in with `admin` / `admin`.
+7. **Immediately change the default password**, then choose a file and its B, P or W destination folder.
+
+**Security:** Change the default credentials before exposing the application to the internet. Keep `private_html` inaccessible to direct HTTP requests and use production configuration. Apache must honor the supplied storage `.htaccess` access restrictions; Nginx requires an equivalent server-side deny rule. Verify that a direct request for a stored file returns 403 or 404.
+
+## Configuration
+
+* Application settings: `private_html/app/config/app.php` (`APP_URL` is optional).
+* Database settings: `private_html/app/config/db.php` (`DB_HOST`, `DB_USER`, `DB_PASS`, `DB_NAME`, `DB_CHAR`, `DB_TIME`, `DB_PREFIX`).
+* Private storage: `FILE_STORAGE_PATH`, defaulting to `private_html/storage`. A custom location outside the web document root is also supported.
+* File size limit: `FILE_MAX_BYTES`, defaulting to `25 * 1024 * 1024` bytes. Adjust the upload form's limit text if changing this value.
+* Authentication language: `APP_LANG`, with `hu` as the default and `en` supported for authentication messages and forms. The file-management interface is currently Hungarian.
+
+## File storage and upload limits
+
+Files are stored in `private_html/storage` using random, extensionless names; their original names, folder assignments and ownership are stored in MySQL. Renaming changes the download filename, including its extension, without moving the stored content. Deleting a file permanently removes its content and database entry.
+
+Files are not encrypted at rest; server administrators can access their contents. Restrict storage permissions to the PHP user. New directories use mode `0700` and files use `0600` on systems supporting Unix permissions; configure equivalent permissions on Windows. Back up the database and file storage together.
+
+Suggested PHP settings for the default **25 MiB** file limit:
+
+```ini
+upload_max_filesize = 25M
+post_max_size = 30M
+```
+
+The web server must also permit the upload request size. Ensure sufficient temporary and permanent disk space. Uploads are sent as a single request, without chunking or automatic resume.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for the release history.

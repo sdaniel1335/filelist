@@ -24,8 +24,14 @@ class files extends app
     }
     $normalized_path = strtolower(str_replace('\\', '/', $path)) . '/';
     $normalized_root = strtolower(str_replace('\\', '/', $document_root)) . '/';
-    if (strpos($normalized_path, $normalized_root) === 0) {
-      $this->fail('A FILE_STORAGE_PATH a publikus webkönyvtárba mutat. Állíts be a document rooton kívüli privát tárolót.');
+    $protected_storage = realpath(dirname(dirname(__DIR__)) . '/storage');
+    $normalized_storage = $protected_storage !== false
+      ? strtolower(str_replace('\\', '/', $protected_storage)) . '/' : '';
+    $private_storage = $normalized_storage !== ''
+      && strpos($normalized_path, $normalized_storage) === 0
+      && is_file($protected_storage . '/.htaccess');
+    if (strpos($normalized_path, $normalized_root) === 0 && !$private_storage) {
+      $this->fail('A FILE_STORAGE_PATH csak a védett private_html/storage könyvtárra vagy a document rooton kívüli tárolóra mutathat.');
     }
     return $path;
   }

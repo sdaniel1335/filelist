@@ -13,7 +13,8 @@ function check($condition, $message)
 }
 function url($path) { return $path; }
 
-check(FILE_STORAGE_PATH === dirname(realpath($_SERVER['DOCUMENT_ROOT'])) . '/filelist-storage', 'Storage default must be outside the document root.');
+check(str_replace('\\', '/', FILE_STORAGE_PATH) === str_replace('\\', '/', dirname(__DIR__)) . '/private_html/storage', 'Storage default must be inside private_html.');
+check(is_file(FILE_STORAGE_PATH . '/.htaccess'), 'Direct HTTP access protection missing.');
 
 foreach (array('report.pdf', 'árvíztűrő tükör.txt', 'file.php', 'a"b.txt') as $name) {
   check(file_name_valid($name), 'Valid filename rejected.');

@@ -1,5 +1,7 @@
 .idea/
 /vendor/
+private_html/storage/*
+!private_html/storage/.htaccess
 private_html/app/config/db.php
 private_html/log/*
 !private_html/log/cli/

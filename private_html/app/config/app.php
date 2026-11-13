@@ -8,14 +8,8 @@ define('APP_LANG', 'hu');
 define('APP_TITLE', 'Filelist');
 define('APP_SESSION', true); // flash
 define('FILE_MAX_BYTES', 25 * 1024 * 1024);
-// Default to a sibling of the actual document root, including subdirectory installs.
-// This can be replaced with an explicit absolute path on deployment.
-$file_document_root = isset($_SERVER['DOCUMENT_ROOT'])
-  ? realpath($_SERVER['DOCUMENT_ROOT']) : false;
-define('FILE_STORAGE_PATH', ($file_document_root !== false
-  ? dirname($file_document_root)
-  : dirname(dirname(dirname(dirname(__DIR__))))) . '/filelist-storage');
-unset($file_document_root);
+// Private application storage, protected from direct HTTP access by .htaccess.
+define('FILE_STORAGE_PATH', dirname(dirname(__DIR__)) . '/storage');
 // Loaded before the framework starts the session; supported on PHP 5.3 too.
 if (PHP_SAPI !== 'cli' && session_id() === '') {
   ini_set('session.use_only_cookies', '1');
